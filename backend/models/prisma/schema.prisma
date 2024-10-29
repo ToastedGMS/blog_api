@@ -20,3 +20,9 @@ model User {
   password String
   role String @default("user")
 }
+
+model RefreshTokens {
+  id    Int     @id @default(autoincrement()) 
+  token String 
+  userEmail String
+}
