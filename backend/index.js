@@ -10,7 +10,7 @@ const {
 	saveRefreshToken,
 	checkToken,
 	removeToken,
-} = require('./models/prisma/script');
+} = require('./models/prisma/scripts/authScripts');
 
 const app = express();
 const port = 3000;
