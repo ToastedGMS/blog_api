@@ -14,15 +14,51 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement()) 
-  email String  @unique 
-  name  String @unique
-  password String
-  role String @default("user")
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String     @unique
+  password  String
+  role      String     @default("user")
+  posts     Posts[]
+  comments  Comments[]
+  RefreshTokens RefreshTokens[]
 }
 
 model RefreshTokens {
-  id    Int     @id @default(autoincrement()) 
-  token String 
-  userEmail String
+  id        Int    @id @default(autoincrement())
+  token     String
+  userEmail String  @unique
+  user      User    @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+}
+
+model Posts {
+  id        Int        @id @default(autoincrement())
+  authorId  Int
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  date      DateTime
+  tags      String[]
+  likes     Int        @default(0)
+  dislikes  Int        @default(0)
+  isDraft   Boolean    @default(false)
+  edited    Boolean    @default(false)
+  comments  Comments[]
+}
+
+model Comments {
+  id                Int        @id @default(autoincrement())
+  postId            Int
+  post              Posts      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId          Int
+  author            User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content           String
+  date              DateTime
+  likes             Int        @default(0)
+  dislikes          Int        @default(0)
+  isReply           Boolean    @default(false)
+  repliedCommentId  Int?
+  replyTo           Comments?  @relation("CommentReplies", fields: [repliedCommentId], references: [id])
+  replies           Comments[] @relation("CommentReplies")
+  edited            Boolean    @default(false)
 }
