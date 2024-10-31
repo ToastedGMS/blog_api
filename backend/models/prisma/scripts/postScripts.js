@@ -1,4 +1,31 @@
-async function fetchPosts({ userId, tags } = {}) {
+async function createPost(
+	prisma,
+	authorId,
+	title,
+	content,
+	tags,
+	date = new Date()
+) {
+	try {
+		const newPost = await prisma.posts.create({
+			data: {
+				authorId,
+				title,
+				content,
+				tags,
+				date,
+			},
+		});
+
+		console.log('Post created:', newPost);
+		return newPost;
+	} catch (error) {
+		console.error('Error creating post on db:', error);
+		throw error;
+	}
+}
+
+async function fetchPosts({ userId, tags, prisma } = {}) {
 	//consider adding pagination and sorting options
 	try {
 		const query = {
@@ -26,3 +53,4 @@ async function fetchPosts({ userId, tags } = {}) {
 		throw error;
 	}
 }
+module.exports = { createPost, fetchPosts };
