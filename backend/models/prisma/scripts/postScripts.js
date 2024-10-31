@@ -47,4 +47,26 @@ async function fetchPosts(prisma, { userId, tags } = {}) {
 		throw error;
 	}
 }
-module.exports = { createPost, fetchPosts };
+
+async function deletePost(prisma, postId) {
+	try {
+		const postToDelete = await prisma.posts.findFirst({
+			where: { id: postId },
+		});
+
+		if (postToDelete) {
+			await prisma.posts.delete({
+				where: { id: postToDelete.id },
+			});
+			console.log('Post removed successfully');
+			return true;
+		} else {
+			console.log('Post not found');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error removing post from database', error);
+		throw error;
+	}
+}
+module.exports = { createPost, fetchPosts, deletePost };
