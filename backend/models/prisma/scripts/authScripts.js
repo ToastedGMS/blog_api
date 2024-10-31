@@ -43,8 +43,6 @@ async function checkToken(refreshToken, prisma) {
 
 async function removeToken(email, prisma) {
 	try {
-		console.log(`Attempting to remove token for email: ${email}`);
-
 		const tokenToDelete = await prisma.refreshTokens.findFirst({
 			where: { userEmail: email },
 		});
