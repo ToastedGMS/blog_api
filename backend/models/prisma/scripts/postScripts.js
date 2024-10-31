@@ -17,7 +17,6 @@ async function createPost(
 			},
 		});
 
-		console.log('Post created:', newPost);
 		return newPost;
 	} catch (error) {
 		console.error('Error creating post on db:', error);
@@ -25,17 +24,12 @@ async function createPost(
 	}
 }
 
-async function fetchPosts({ userId, tags, prisma } = {}) {
+async function fetchPosts(prisma, { userId, tags } = {}) {
 	//consider adding pagination and sorting options
 	try {
 		const query = {
 			where: {},
 		};
-
-		if (!userId && !tags) {
-			console.error('Error fetching posts: No query parameters provided.');
-			return posts;
-		}
 
 		if (userId) {
 			query.where.authorId = userId;
