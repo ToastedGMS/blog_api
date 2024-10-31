@@ -11,6 +11,10 @@ const {
 	checkToken,
 	removeToken,
 } = require('./models/prisma/scripts/authScripts');
+const {
+	createPost,
+	fetchPosts,
+} = require('./models/prisma/scripts/postScripts');
 
 const app = express();
 const port = 3000;
@@ -69,15 +73,6 @@ app.post('/login', async (req, res) => {
 	}
 });
 
-app.get('/test', authenticateToken, (req, res) => {
-	try {
-		res.json({ user: req.user });
-	} catch (error) {
-		console.error('Internal server error:', error);
-		res.status(500).json({ error: 'Internal Server Error' });
-	}
-});
-
 app.post('/refresh-token', async (req, res) => {
 	const { refreshToken, email } = req.body;
 
@@ -110,6 +105,48 @@ app.post('/logout', async (req, res) => {
 	} catch (error) {
 		console.error('Error logging out:', error);
 		res.status(500).json({ error: 'Failed to log out' });
+	}
+});
+
+app.post('/posts/new', authenticateToken, async (req, res) => {
+	try {
+		const { authorId, title, content, tags } = req.body;
+
+		if (!authorId || !title || !content || !tags) {
+			const errorMessage = 'Missing parameters for post creation';
+			console.error(errorMessage);
+			res.status(400).json({ error: errorMessage });
+		}
+
+		const newPost = await createPost(
+			prisma,
+			parseInt(authorId, 10),
+			title,
+			content,
+			tags
+		);
+
+		res.json({ message: 'Post created successfully!', post: newPost });
+	} catch (error) {
+		res.sendStatus(500);
+	}
+});
+
+app.get('/posts', async (req, res) => {
+	try {
+		const { userId, tags } = req.query;
+
+		const parsedUserId = userId ? parseInt(userId, 10) : undefined;
+
+		const parsedTags = tags ? tags.split(',') : [];
+
+		const posts = await fetchPosts(prisma, {
+			userId: parsedUserId,
+			tags: parsedTags,
+		});
+		res.json({ posts: posts });
+	} catch (error) {
+		res.sendStatus(500);
 	}
 });
 
