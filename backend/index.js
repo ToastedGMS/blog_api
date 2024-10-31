@@ -97,7 +97,7 @@ app.post('/tokens/refresh', async (req, res) => {
 	);
 });
 
-app.post('/users/logout', async (req, res) => {
+app.delete('/users/logout', async (req, res) => {
 	const { email } = req.body;
 
 	try {
@@ -148,6 +148,22 @@ app.get('/posts', async (req, res) => {
 		res.json({ posts: posts });
 	} catch (error) {
 		res.sendStatus(500);
+	}
+});
+
+app.delete('/posts/:postId', authenticateToken, async (req, res) => {
+	try {
+		const { postId } = req.params;
+
+		const deleted = await deletePost(prisma, parseInt(postId, 10));
+
+		if (deleted) {
+			res.status(200).json({ message: 'Post deleted successfully' }); // Success response
+		} else {
+			res.status(404).json({ error: 'Post not found' }); // Not found response
+		}
+	} catch (error) {
+		res.status(500).json({ error: 'Failed to delete post' }); // Error response
 	}
 });
 
