@@ -69,4 +69,39 @@ async function deletePost(prisma, postId) {
 		throw error;
 	}
 }
-module.exports = { createPost, fetchPosts, deletePost };
+
+async function updatePost(prisma, postId, { title, content, tags } = {}) {
+	try {
+		const postToUpdate = await prisma.posts.findFirst({
+			where: { id: postId },
+		});
+
+		if (!postToUpdate) {
+			console.log('Post not found');
+			return null;
+		}
+
+		const dataToUpdate = {};
+		if (title !== undefined) dataToUpdate.title = title;
+		if (content !== undefined) dataToUpdate.content = content;
+		if (tags !== undefined) dataToUpdate.tags = tags;
+		dataToUpdate.edited = true;
+
+		if (Object.keys(dataToUpdate).length > 0) {
+			const updatedPost = await prisma.posts.update({
+				where: { id: postToUpdate.id },
+				data: dataToUpdate,
+			});
+			const responseMsg = 'Post updated successfully:';
+			return { responseMsg, updatedPost };
+		} else {
+			const responseMsg = 'No fields to update';
+			return { responseMsg, postToUpdate };
+		}
+	} catch (error) {
+		console.error('Error updating post:', error);
+		throw error;
+	}
+}
+
+module.exports = { createPost, fetchPosts, deletePost, updatePost };
