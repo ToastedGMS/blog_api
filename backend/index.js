@@ -14,6 +14,7 @@ const {
 const {
 	createPost,
 	fetchPosts,
+	deletePost,
 } = require('./models/prisma/scripts/postScripts');
 
 const app = express();
@@ -24,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //routes
-app.post('/register', async (req, res) => {
+app.post('/users/new', async (req, res) => {
 	const { email, password, name } = req.body;
 
 	if (!email || !password || !name) {
@@ -42,7 +43,7 @@ app.post('/register', async (req, res) => {
 	}
 });
 
-app.post('/login', async (req, res) => {
+app.post('/users/login', async (req, res) => {
 	const { email, password } = req.body;
 
 	if (!email || !password) {
@@ -73,7 +74,7 @@ app.post('/login', async (req, res) => {
 	}
 });
 
-app.post('/refresh-token', async (req, res) => {
+app.post('/tokens/refresh', async (req, res) => {
 	const { refreshToken, email } = req.body;
 
 	if (!refreshToken || (await checkToken(refreshToken, prisma)) === false) {
@@ -96,7 +97,7 @@ app.post('/refresh-token', async (req, res) => {
 	);
 });
 
-app.post('/logout', async (req, res) => {
+app.post('/users/logout', async (req, res) => {
 	const { email } = req.body;
 
 	try {
@@ -115,7 +116,7 @@ app.post('/posts/new', authenticateToken, async (req, res) => {
 		if (!authorId || !title || !content || !tags) {
 			const errorMessage = 'Missing parameters for post creation';
 			console.error(errorMessage);
-			res.status(400).json({ error: errorMessage });
+			return res.status(400).json({ error: errorMessage });
 		}
 
 		const newPost = await createPost(
