@@ -17,6 +17,7 @@ const {
 	deletePost,
 	updatePost,
 } = require('./models/prisma/scripts/postScripts');
+const { makeComment } = require('./models/prisma/scripts/commentScripts');
 
 const app = express();
 const port = 3000;
@@ -195,6 +196,27 @@ app.put('/posts/:postId', authenticateToken, async (req, res) => {
 		}
 	} catch (error) {
 		res.status(500).json({ error: 'Failed to update post' });
+	}
+});
+
+app.post('/posts/:postId/comments', authenticateToken, async (req, res) => {
+	try {
+		const { postId } = req.params;
+		const { authorId, content, isReply, repliedCommentId } = req.body;
+		const comment = await makeComment(
+			prisma,
+			authorId,
+			parseInt(postId, 10),
+			content,
+			isReply,
+			repliedCommentId
+		);
+
+		return res
+			.status(200)
+			.json({ message: 'Comment posted successfully', comment });
+	} catch (error) {
+		res.status(500).json({ error: 'Failed to post comment' });
 	}
 });
 
