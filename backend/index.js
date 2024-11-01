@@ -20,6 +20,7 @@ const {
 const {
 	makeComment,
 	fetchComments,
+	deleteComment,
 } = require('./models/prisma/scripts/commentScripts');
 
 const app = express();
@@ -241,6 +242,26 @@ app.get('/posts/:postId/comments', async (req, res) => {
 		res.status(500).json({ error: 'Failed to fetch comments' });
 	}
 });
+
+app.delete(
+	'/posts/:postId/comments/:commentId',
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const { commentId } = req.params;
+
+			const deleted = await deleteComment(prisma, parseInt(commentId, 10));
+
+			if (deleted) {
+				res.status(200).json({ message: 'Comment deleted successfully' });
+			} else {
+				res.status(404).json({ error: 'Comment not found' });
+			}
+		} catch (error) {
+			res.status(500).json({ error: 'Failed to delete comment' });
+		}
+	}
+);
 
 function generateToken(email) {
 	try {
