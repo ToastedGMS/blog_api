@@ -58,7 +58,7 @@ model Comments {
   dislikes          Int        @default(0)
   isReply           Boolean    @default(false)
   repliedCommentId  Int?
-  replyTo           Comments?  @relation("CommentReplies", fields: [repliedCommentId], references: [id])
+  replyTo           Comments?  @relation("CommentReplies", fields: [repliedCommentId], references: [id], onDelete: Cascade)
   replies           Comments[] @relation("CommentReplies")
   edited            Boolean    @default(false)
 }
