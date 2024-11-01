@@ -47,4 +47,26 @@ async function fetchComments(
 	}
 }
 
-module.exports = { makeComment, fetchComments };
+async function deleteComment(prisma, commentId) {
+	try {
+		const commentToDelete = await prisma.comments.findFirst({
+			where: { id: commentId },
+		});
+
+		if (commentToDelete) {
+			await prisma.comments.delete({
+				where: { id: commentToDelete.id },
+			});
+			console.log('Comment removed successfully');
+			return true;
+		} else {
+			console.log('Comment not found');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error removing comment from database', error);
+		throw error;
+	}
+}
+
+module.exports = { makeComment, fetchComments, deleteComment };
