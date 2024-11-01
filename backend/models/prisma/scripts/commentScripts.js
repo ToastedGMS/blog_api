@@ -69,4 +69,36 @@ async function deleteComment(prisma, commentId) {
 	}
 }
 
-module.exports = { makeComment, fetchComments, deleteComment };
+async function updateComment(prisma, commentId, { content } = {}) {
+	try {
+		const commentToUpdate = await prisma.comments.findFirst({
+			where: { id: commentId },
+		});
+
+		if (!commentToUpdate) {
+			console.log('Comment not found');
+			return null;
+		}
+
+		const dataToUpdate = {};
+		if (content !== undefined) dataToUpdate.content = content;
+		dataToUpdate.edited = true;
+
+		if (Object.keys(dataToUpdate).length > 0) {
+			const updatedComment = await prisma.comments.update({
+				where: { id: commentToUpdate.id },
+				data: dataToUpdate,
+			});
+			const responseMsg = 'Comment updated successfully:';
+			return { responseMsg, updatedComment };
+		} else {
+			const responseMsg = 'No fields to update';
+			return { responseMsg, commentToUpdate };
+		}
+	} catch (error) {
+		console.error('Error updating comment:', error);
+		throw error;
+	}
+}
+
+module.exports = { makeComment, fetchComments, deleteComment, updateComment };
