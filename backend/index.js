@@ -21,6 +21,7 @@ const {
 	makeComment,
 	fetchComments,
 	deleteComment,
+	updateComment,
 } = require('./models/prisma/scripts/commentScripts');
 
 const app = express();
@@ -259,6 +260,40 @@ app.delete(
 			}
 		} catch (error) {
 			res.status(500).json({ error: 'Failed to delete comment' });
+		}
+	}
+);
+
+app.put(
+	'/posts/:postId/comments/:commentId',
+	authenticateToken,
+	async (req, res) => {
+		try {
+			const { commentId } = req.params;
+			const { content } = req.body;
+
+			const updateParams = {};
+			if (content !== undefined) updateParams.content = content;
+
+			const response = await updateComment(
+				prisma,
+				parseInt(commentId, 10),
+				updateParams
+			);
+			if (response.updatedComment) {
+				return res.json({
+					message: response.responseMsg,
+					post: response.updatedComment,
+				});
+			} else {
+				return res.status(200).json({
+					message: response.responseMsg,
+					post: response.commentToUpdate,
+				});
+			}
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({ error: 'Failed to update comment' });
 		}
 	}
 );
