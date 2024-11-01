@@ -19,4 +19,32 @@ async function makeComment(
 	}
 }
 
-module.exports = { makeComment };
+async function fetchComments(
+	prisma,
+	postId,
+	{ repliedCommentId, skip = 0, take = 10, orderBy = { date: 'asc' } } = {}
+) {
+	try {
+		const query = {
+			where: {
+				postId,
+			},
+			skip,
+			take,
+			orderBy,
+		};
+
+		if (!repliedCommentId) {
+			query.where.repliedCommentId = null;
+		} else {
+			query.where.repliedCommentId = repliedCommentId;
+		}
+
+		return await prisma.comments.findMany(query);
+	} catch (error) {
+		console.error('Error fetching comments:', error);
+		throw error;
+	}
+}
+
+module.exports = { makeComment, fetchComments };
