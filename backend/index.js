@@ -17,7 +17,10 @@ const {
 	deletePost,
 	updatePost,
 } = require('./models/prisma/scripts/postScripts');
-const { makeComment } = require('./models/prisma/scripts/commentScripts');
+const {
+	makeComment,
+	fetchComments,
+} = require('./models/prisma/scripts/commentScripts');
 
 const app = express();
 const port = 3000;
@@ -217,6 +220,25 @@ app.post('/posts/:postId/comments', authenticateToken, async (req, res) => {
 			.json({ message: 'Comment posted successfully', comment });
 	} catch (error) {
 		res.status(500).json({ error: 'Failed to post comment' });
+	}
+});
+
+app.get('/posts/:postId/comments', async (req, res) => {
+	try {
+		const { postId } = req.params;
+		const { repliedCommentId } = req.query;
+
+		const comments = await fetchComments(prisma, parseInt(postId, 10), {
+			repliedCommentId: repliedCommentId
+				? parseInt(repliedCommentId, 10)
+				: undefined,
+		});
+
+		return res
+			.status(200)
+			.json({ message: 'Comments fetched successfully', comments });
+	} catch (error) {
+		res.status(500).json({ error: 'Failed to fetch comments' });
 	}
 });
 
