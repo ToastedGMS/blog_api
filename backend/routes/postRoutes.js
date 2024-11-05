@@ -7,7 +7,7 @@ const {
 } = require('../controllers/postController');
 const { authenticateToken } = require('../controllers/tokenController');
 
-router.post('/new', authenticateToken, postPost);
+router.post('/', authenticateToken, postPost);
 
 router.get('/', getPost);
 
