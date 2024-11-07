@@ -22,13 +22,15 @@ function LoginForm() {
 			if (response.ok) {
 				console.log('Login successful');
 				localStorage.setItem(
-					`${data.user.email}.AccessToken`,
+					`user_${data.user.id}.AccessToken`,
 					data.accessToken
 				);
 				localStorage.setItem(
-					`${data.user.email}.RefreshToken`,
+					`user_${data.user.id}.RefreshToken`,
 					data.refreshToken
 				);
+				localStorage.setItem(`user_${data.user.id}.Email`, data.user.email);
+				sessionStorage.setItem('currentUser', data.user.id);
 			} else {
 				console.error('Login failed:', data);
 			}
