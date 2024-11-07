@@ -1,12 +1,14 @@
 //server related imports
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
 //middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 //routes
 const postRouter = require('./routes/postRoutes');
