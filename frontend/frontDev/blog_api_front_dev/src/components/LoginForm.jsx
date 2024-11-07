@@ -20,7 +20,15 @@ function LoginForm() {
 			const data = await response.json();
 
 			if (response.ok) {
-				console.log('Login successful', data);
+				console.log('Login successful');
+				localStorage.setItem(
+					`${data.user.email}.AccessToken`,
+					data.accessToken
+				);
+				localStorage.setItem(
+					`${data.user.email}.RefreshToken`,
+					data.refreshToken
+				);
 			} else {
 				console.error('Login failed:', data);
 			}
