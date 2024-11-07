@@ -1,6 +1,11 @@
-import LoginForm from './LoginForm';
+import { Link } from 'react-router-dom';
 
 function App() {
-	return <LoginForm />;
+	return (
+		<>
+			<h1>Hello World</h1>
+			<Link to={'login'}>Login</Link>
+		</>
+	);
 }
 export default App;
