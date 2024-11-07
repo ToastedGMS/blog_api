@@ -4,6 +4,7 @@ import '../styles/LoginForm.css';
 function LoginForm() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [message, setMessage] = useState('');
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -31,6 +32,7 @@ function LoginForm() {
 				);
 				localStorage.setItem(`user_${data.user.id}.Email`, data.user.email);
 				sessionStorage.setItem('currentUser', data.user.id);
+				setMessage('Login successful!');
 			} else {
 				console.error('Login failed:', data);
 			}
@@ -65,6 +67,7 @@ function LoginForm() {
 
 				<button>Login</button>
 			</form>
+			<span style={{ color: 'green' }}>{message}</span>
 		</>
 	);
 }
