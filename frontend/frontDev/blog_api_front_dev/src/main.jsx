@@ -5,6 +5,7 @@ import App from './components/App.jsx';
 import LoginForm from './components/LoginForm.jsx';
 import Logout from './components/Logout.jsx';
 import Homepage from './components/Homepage.jsx';
+import NewPost from './components/NewPost.jsx';
 
 const router = createBrowserRouter([
 	{ path: '/dev', element: <App /> },
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
 	{
 		path: '/dev/home',
 		element: <Homepage />,
+	},
+	{
+		path: '/dev/newPost',
+		element: <NewPost />,
 	},
 ]);
 
