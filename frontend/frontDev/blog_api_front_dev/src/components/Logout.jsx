@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Logout() {
 	const [logoutMessage, setLogoutMessage] = useState('Logging user out...');
+	const navigate = useNavigate();
 
 	const handleLogout = async () => {
 		try {
@@ -24,6 +26,7 @@ export default function Logout() {
 				localStorage.removeItem(`user_${currentUserId}.AccessToken`);
 				localStorage.removeItem(`user_${currentUserId}.RefreshToken`);
 				localStorage.removeItem(`user_${currentUserId}.Email`);
+				navigate('/dev/login');
 			} else {
 				const data = await logoutResponse.json();
 				console.log(data.message);
