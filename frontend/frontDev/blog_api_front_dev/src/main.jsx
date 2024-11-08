@@ -4,16 +4,21 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './components/App.jsx';
 import LoginForm from './components/LoginForm.jsx';
 import Logout from './components/Logout.jsx';
+import Homepage from './components/Homepage.jsx';
 
 const router = createBrowserRouter([
-	{ path: '/', element: <App /> },
+	{ path: '/dev', element: <App /> },
 	{
-		path: '/login',
+		path: '/dev/login',
 		element: <LoginForm />,
 	},
 	{
-		path: '/logout',
+		path: '/dev/logout',
 		element: <Logout />,
+	},
+	{
+		path: '/dev/home',
+		element: <Homepage />,
 	},
 ]);
 
