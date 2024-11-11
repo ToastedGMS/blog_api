@@ -24,12 +24,16 @@ async function createPost(
 	}
 }
 
-async function fetchPosts(prisma, { userId, tags } = {}) {
+async function fetchPosts(prisma, { postId, userId, tags } = {}) {
 	//consider adding pagination and sorting options
 	try {
 		const query = {
 			where: {},
 		};
+
+		if (postId) {
+			query.where.id = postId;
+		}
 
 		if (userId) {
 			query.where.authorId = userId;

@@ -32,18 +32,22 @@ async function postPost(req, res) {
 
 async function getPost(req, res) {
 	try {
-		const { userId, tags } = req.query;
+		const { postId, userId, tags } = req.query;
 
 		const parsedUserId = userId ? parseInt(userId, 10) : undefined;
+
+		const parsedPostId = postId ? parseInt(postId, 10) : undefined;
 
 		const parsedTags = tags ? tags.split(',') : [];
 
 		const posts = await fetchPosts(prisma, {
+			postId: parsedPostId,
 			userId: parsedUserId,
 			tags: parsedTags,
 		});
 		res.json({ posts: posts });
 	} catch (error) {
+		console.error(error);
 		res.sendStatus(500);
 	}
 }
