@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Homepage() {
 	const [posts, setPosts] = useState([]);
+	const navigate = useNavigate();
 
 	const fetchPosts = async () => {
 		try {
@@ -23,7 +24,6 @@ export default function Homepage() {
 			setPosts([]);
 		}
 	};
-
 	useEffect(() => {
 		fetchPosts();
 	}, []);
@@ -32,7 +32,13 @@ export default function Homepage() {
 		<>
 			<div>
 				{posts.map((post) => (
-					<div key={post.id}>
+					<div
+						key={post.id}
+						onClick={() => {
+							navigate(`/dev/post/${post.id}`);
+						}}
+						style={{ cursor: 'pointer' }}
+					>
 						<h2>{post.title}</h2>
 						<h4>Likes {post.likes}</h4>
 						<h4>Dislikes {post.dislikes}</h4>
