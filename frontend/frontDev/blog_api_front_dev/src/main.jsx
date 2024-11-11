@@ -6,6 +6,7 @@ import LoginForm from './components/LoginForm.jsx';
 import Logout from './components/Logout.jsx';
 import Homepage from './components/Homepage.jsx';
 import NewPost from './components/NewPost.jsx';
+import ReadPost from './components/ReadPost.jsx';
 
 const router = createBrowserRouter([
 	{ path: '/dev', element: <App /> },
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
 	{
 		path: '/dev/newPost',
 		element: <NewPost />,
+	},
+	{
+		path: '/dev/post/:id',
+		element: <ReadPost />,
 	},
 ]);
 
