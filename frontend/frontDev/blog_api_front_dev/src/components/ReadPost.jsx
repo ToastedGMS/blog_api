@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 export default function ReadPost() {
 	const { id } = useParams();
@@ -7,6 +7,7 @@ export default function ReadPost() {
 	const [comments, setComments] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [loadComments, setLoadComments] = useState(true);
+	const navigate = useNavigate();
 
 	const readPost = async () => {
 		try {
@@ -67,6 +68,38 @@ export default function ReadPost() {
 		}
 	};
 
+	const deletePost = async () => {
+		try {
+			const confirmDelete = window.confirm(
+				'Are you sure you want to delete this post?'
+			);
+			if (!confirmDelete) return;
+
+			const deletePostResponse = await fetch(
+				`http://localhost:3000/posts/${id}`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-type': 'application/json',
+						authorization: `Bearer ${localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+						)}`,
+					},
+				}
+			);
+
+			if (deletePostResponse.ok) {
+				console.log('Post deleted successfully');
+				navigate('/dev/home');
+			} else {
+				console.error('Error deleting post');
+				console.log(deletePostResponse.status);
+			}
+		} catch (error) {
+			console.error('Error deleting post:', error);
+		}
+	};
+
 	useEffect(() => {
 		readPost();
 		readComments();
@@ -78,9 +111,9 @@ export default function ReadPost() {
 	return (
 		<>
 			<div key={id}>
-				<h2>{post.title}</h2>
-				<p>{post.content}</p>
-				<p>Posted on: {post.date}</p>
+				<div dangerouslySetInnerHTML={{ __html: post.title }} />
+				<div dangerouslySetInnerHTML={{ __html: post.content }} />
+				<p>Posted on: {new Date(post.date).toLocaleDateString()}</p>
 				<p>Likes: {post.likes}</p>
 				<p>Dislikes: {post.dislikes}</p>
 			</div>
@@ -116,6 +149,13 @@ export default function ReadPost() {
 					<div>No comments found</div>
 				)}
 			</div>
+			<button
+				onClick={async () => {
+					await deletePost();
+				}}
+			>
+				Delete Post
+			</button>
 			<Link to={'/dev/home'}>Return</Link> <br />
 			<Link to={'/dev/logout'}>Logout</Link>
 		</>
