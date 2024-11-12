@@ -46,7 +46,7 @@ export default function Homepage() {
 					</div>
 				))}
 			</div>
-
+			<Link to={'/dev/newPost'}>New Post</Link> <br />
 			<Link to={'/dev/logout'}>Logout</Link>
 		</>
 	);
