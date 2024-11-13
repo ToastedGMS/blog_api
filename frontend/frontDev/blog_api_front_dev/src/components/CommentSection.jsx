@@ -35,6 +35,37 @@ export default function CommentSection() {
 		}
 	};
 
+	const deleteComment = async (commentId) => {
+		const confirmDelete = window.confirm(
+			'Are you sure you want to delete this comment?'
+		);
+		if (!confirmDelete) return;
+
+		try {
+			const deleteCommentResponse = await fetch(
+				`http://localhost:3000/posts/${id}/comments/${commentId}`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-type': 'application/json',
+						authorization: `Bearer ${localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+						)}`,
+					},
+				}
+			);
+
+			if (deleteCommentResponse.ok) {
+				setComments(comments.filter((comment) => comment.id !== commentId));
+				console.log('Comment deleted successfully');
+			} else {
+				console.error('Error deleting comment');
+			}
+		} catch (error) {
+			console.error('Error deleting comment:', error);
+		}
+	};
+
 	useEffect(() => {
 		readComments();
 	}, [id]);
@@ -42,7 +73,6 @@ export default function CommentSection() {
 	return (
 		<>
 			<Link to={`/dev/post/${id}/comments/new`}>Add a new comment</Link>
-
 			<Outlet />
 			<div>
 				<h3>Comments</h3>
@@ -70,6 +100,9 @@ export default function CommentSection() {
 							<p>
 								<strong>Edited:</strong> {comment.edited ? 'Yes' : 'No'}
 							</p>
+							<button onClick={() => deleteComment(comment.id)}>
+								Delete Comment
+							</button>
 						</div>
 					))
 				) : (
