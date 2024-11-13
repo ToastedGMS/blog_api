@@ -7,6 +7,8 @@ import Logout from './components/Logout.jsx';
 import Homepage from './components/Homepage.jsx';
 import NewPost from './components/NewPost.jsx';
 import ReadPost from './components/ReadPost.jsx';
+import CommentSection from './components/CommentSection.jsx';
+import NewComment from './components/NewComment.jsx';
 
 const router = createBrowserRouter([
 	{ path: '/dev', element: <App /> },
@@ -29,6 +31,13 @@ const router = createBrowserRouter([
 	{
 		path: '/dev/post/:id',
 		element: <ReadPost />,
+		children: [
+			{
+				path: 'comments',
+				element: <CommentSection />,
+				children: [{ path: 'new', element: <NewComment /> }],
+			},
+		],
 	},
 ]);
 
