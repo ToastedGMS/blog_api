@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, Outlet } from 'react-router-dom';
 
 export default function ReadPost() {
 	const { id } = useParams();
 	const [post, setPost] = useState(null);
-	const [comments, setComments] = useState(null);
 	const [loading, setLoading] = useState(true);
-	const [loadComments, setLoadComments] = useState(true);
+	const [showComments, setShowComments] = useState(false);
 	const navigate = useNavigate();
 
 	const readPost = async () => {
@@ -35,36 +34,6 @@ export default function ReadPost() {
 			console.error('Error getting post:', error);
 		} finally {
 			setLoading(false);
-		}
-	};
-
-	const readComments = async () => {
-		try {
-			const readCommentsResponse = await fetch(
-				`http://localhost:3000/posts/${id}/comments`,
-				{
-					method: 'GET',
-					headers: {
-						'Content-type': 'application/json',
-					},
-				}
-			);
-
-			if (readCommentsResponse.ok) {
-				const data = await readCommentsResponse.json();
-				if (data.comments) {
-					setComments(data.comments);
-					console.log(data.comments);
-				} else {
-					console.error('No comments found');
-				}
-			} else {
-				console.error('Error loading comments');
-			}
-		} catch (error) {
-			console.error('Error getting comments:', error);
-		} finally {
-			setLoadComments(false);
 		}
 	};
 
@@ -100,9 +69,17 @@ export default function ReadPost() {
 		}
 	};
 
+	const toggleComments = () => {
+		setShowComments((prev) => !prev);
+		if (!showComments) {
+			navigate(`/dev/post/${id}/comments`);
+		} else {
+			navigate(`/dev/post/${id}`);
+		}
+	};
+
 	useEffect(() => {
 		readPost();
-		readComments();
 	}, [id]);
 
 	if (loading) return <div>Loading post...</div>;
@@ -117,45 +94,11 @@ export default function ReadPost() {
 				<p>Likes: {post.likes}</p>
 				<p>Dislikes: {post.dislikes}</p>
 			</div>
-			<div>
-				<h3>Comments</h3>
-				{loadComments ? (
-					<div>Loading comments...</div>
-				) : comments && comments.length > 0 ? (
-					comments.map((comment) => (
-						<div key={comment.id}>
-							<p>
-								<strong>Author ID:</strong> {comment.authorId}
-							</p>
-							<p>
-								<strong>Content:</strong> {comment.content}
-							</p>
-							<p>
-								<strong>Date:</strong>{' '}
-								{new Date(comment.date).toLocaleDateString()}
-							</p>
-							<p>
-								<strong>Likes:</strong> {comment.likes}
-							</p>
-							<p>
-								<strong>Dislikes:</strong> {comment.dislikes}
-							</p>
-							<p>
-								<strong>Edited:</strong> {comment.edited ? 'Yes' : 'No'}
-							</p>
-						</div>
-					))
-				) : (
-					<div>No comments found</div>
-				)}
-			</div>
-			<button
-				onClick={async () => {
-					await deletePost();
-				}}
-			>
-				Delete Post
+			<button onClick={toggleComments}>
+				{showComments ? 'Hide Comments' : 'Show Comments'}
 			</button>
+			<Outlet context={{ showComments, setShowComments }} />
+			<button onClick={deletePost}>Delete Post</button>
 			<Link to={'/dev/home'}>Return</Link> <br />
 			<Link to={'/dev/logout'}>Logout</Link>
 		</>
