@@ -1,10 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function NewPost() {
 	const editorRef = useRef(null);
 	const [title, setTitle] = useState('');
 	const [content, setContent] = useState('');
+	const navigate = useNavigate();
 
 	const handleSavePost = async () => {
 		const editorContent = editorRef.current.getContent();
@@ -34,7 +36,9 @@ export default function NewPost() {
 
 			if (response.ok) {
 				console.log(data);
+				navigate('/dev/home');
 			} else {
+				console.log(response.status);
 				console.error('Error creating post');
 			}
 		} catch (error) {
