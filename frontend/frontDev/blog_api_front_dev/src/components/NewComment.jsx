@@ -27,7 +27,7 @@ export default function NewComment() {
 			);
 
 			if (response.ok) {
-				navigate(`/dev/post/${id}/comments`);
+				navigate(`/dev/post/${id}`);
 			} else {
 				console.error(response.status);
 				console.error('Error posting comment');
