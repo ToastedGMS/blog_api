@@ -6,6 +6,8 @@ export default function ReadPost() {
 	const [post, setPost] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [showComments, setShowComments] = useState(false);
+	const [likeBtnMethod, setLikeBtnMethod] = useState('POST');
+	const [dislikeBtnMethod, setDislikeBtnMethod] = useState('POST');
 	const navigate = useNavigate();
 
 	const readPost = async () => {
@@ -78,9 +80,51 @@ export default function ReadPost() {
 		}
 	};
 
+	const handleReactionClick = async (isLike) => {
+		try {
+			const reactionType = isLike ? 'like' : 'dislike';
+			const oppositeReactionMethod = isLike ? dislikeBtnMethod : likeBtnMethod;
+			const currentMethod = isLike ? likeBtnMethod : dislikeBtnMethod;
+			const setCurrentMethod = isLike ? setLikeBtnMethod : setDislikeBtnMethod;
+			const setOppositeMethod = isLike ? setDislikeBtnMethod : setLikeBtnMethod;
+
+			if (oppositeReactionMethod === 'DELETE') {
+				await handleReactionClick(!isLike);
+			}
+
+			const reactionResponse = await fetch(
+				`http://localhost:3000/posts/${id}/${reactionType}?postId=${id}`,
+				{
+					method: currentMethod,
+					headers: {
+						'Content-type': 'application/json',
+						authorization: `Bearer ${localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+						)}`,
+					},
+				}
+			);
+
+			if (reactionResponse.ok) {
+				if (currentMethod === 'POST') {
+					setCurrentMethod('DELETE');
+					setOppositeMethod('POST');
+					console.log(`Post ${id} ${reactionType}d`);
+				} else {
+					setCurrentMethod('POST');
+					console.log(`Post ${id} un${reactionType}d`);
+				}
+			} else {
+				console.error(reactionResponse.status, reactionResponse.statusText);
+			}
+		} catch (error) {
+			console.error(`Error with ${reactionType} button click:`, error);
+		}
+	};
+
 	useEffect(() => {
 		readPost();
-	}, [id]);
+	}, [id, likeBtnMethod, dislikeBtnMethod]);
 
 	if (loading) return <div>Loading post...</div>;
 	if (!post) return <div>Post not found</div>;
@@ -91,9 +135,13 @@ export default function ReadPost() {
 				<div dangerouslySetInnerHTML={{ __html: post.title }} />
 				<div dangerouslySetInnerHTML={{ __html: post.content }} />
 				<p>Posted on: {new Date(post.date).toLocaleDateString()}</p>
-				<p>Likes: {post.likes}</p>
-				<p>Dislikes: {post.dislikes}</p>
-			</div>
+				<p>Likes: {post.likes}</p>{' '}
+				<button onClick={() => handleReactionClick(true)}>Like</button>
+				<p>Dislikes: {post.dislikes}</p>{' '}
+				<button onClick={() => handleReactionClick(false)}>Dislike</button>
+			</div>{' '}
+			<br />
+			<br />
 			<button onClick={toggleComments}>
 				{showComments ? 'Hide Comments' : 'Show Comments'}
 			</button>
