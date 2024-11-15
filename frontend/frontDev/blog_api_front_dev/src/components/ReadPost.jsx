@@ -178,6 +178,13 @@ export default function ReadPost() {
 			>
 				{post.isDraft ? 'Publish' : 'Unpublish'}
 			</button>
+			<button
+				onClick={() => {
+					navigate(`/dev/post/${id}/update`);
+				}}
+			>
+				Edit
+			</button>
 			<Link to={'/dev/home'}>Return</Link> <br />
 			<Link to={'/dev/logout'}>Logout</Link>
 		</>
