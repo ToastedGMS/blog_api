@@ -9,6 +9,7 @@ import NewPost from './components/NewPost.jsx';
 import ReadPost from './components/ReadPost.jsx';
 import CommentSection from './components/CommentSection.jsx';
 import NewComment from './components/NewComment.jsx';
+import PostUpdate from './components/PostUpdate.jsx';
 
 const router = createBrowserRouter([
 	{ path: '/dev', element: <App /> },
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
 				children: [{ path: 'new', element: <NewComment /> }],
 			},
 		],
+	},
+	{
+		path: '/dev/post/:id/update',
+		element: <PostUpdate />,
 	},
 ]);
 
