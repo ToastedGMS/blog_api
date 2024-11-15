@@ -45,7 +45,8 @@ export default function Homepage() {
 						<h2>{post.title}</h2>
 						<h4>Likes {post.likes}</h4>
 						<h4>Dislikes {post.dislikes}</h4>
-						<h3>Published: {post.isDraft ? 'No' : 'Yes'}</h3>
+						<p>Edited: {post.edited ? 'Yes' : 'No'}</p>
+						<p>Published: {post.isDraft ? 'No' : 'Yes'}</p>
 					</div>
 				))}
 			</div>
