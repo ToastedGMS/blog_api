@@ -4,6 +4,7 @@ const {
 	fetchPosts,
 	deletePost,
 	updatePost,
+	togglePublish,
 } = require('../models/prisma/scripts/postScripts');
 
 async function postPost(req, res) {
@@ -98,4 +99,37 @@ async function putPost(req, res) {
 	}
 }
 
-module.exports = { getPost, postPost, routerDeletePost, putPost };
+async function routerTogglePublish(req, res) {
+	try {
+		const { postId } = req.params;
+
+		if (!postId) {
+			const errorMessage = 'Missing postId parameter';
+			console.error(errorMessage);
+			return res.status(400).json({ error: errorMessage });
+		}
+
+		const updatedPost = await togglePublish(prisma, parseInt(postId, 10));
+
+		if (!updatedPost) {
+			return res.status(404).json({ error: 'Post not found' });
+		}
+
+		const message = `Post ${
+			updatedPost.isDraft ? 'unpublished' : 'published'
+		} successfully`;
+		console.log(message);
+		return res.status(200).json({ message, post: updatedPost });
+	} catch (error) {
+		console.error('Error in routerTogglePublish:', error);
+		return res.status(500).json({ error: 'Failed to toggle publish state' });
+	}
+}
+
+module.exports = {
+	getPost,
+	postPost,
+	routerDeletePost,
+	putPost,
+	routerTogglePublish,
+};
