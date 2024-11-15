@@ -37,12 +37,15 @@ export default function Homepage() {
 						onClick={() => {
 							navigate(`/dev/post/${post.id}`);
 						}}
-						style={{ cursor: 'pointer' }}
+						style={{
+							cursor: 'pointer',
+							opacity: post.isDraft ? '60%' : '100%',
+						}}
 					>
 						<h2>{post.title}</h2>
 						<h4>Likes {post.likes}</h4>
 						<h4>Dislikes {post.dislikes}</h4>
-						<h3>Tags {post.tags}</h3>
+						<h3>Published: {post.isDraft ? 'No' : 'Yes'}</h3>
 					</div>
 				))}
 			</div>
