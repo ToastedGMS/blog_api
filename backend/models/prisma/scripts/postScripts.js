@@ -108,4 +108,36 @@ async function updatePost(prisma, postId, { title, content, tags } = {}) {
 	}
 }
 
-module.exports = { createPost, fetchPosts, deletePost, updatePost };
+async function togglePublish(prisma, postId) {
+	try {
+		const post = await prisma.posts.findFirst({
+			where: { id: postId },
+		});
+
+		if (!post) {
+			console.log('Post not found');
+			return null;
+		}
+
+		const updatedPost = await prisma.posts.update({
+			where: { id: post.id },
+			data: { isDraft: !post.isDraft },
+		});
+
+		console.log(
+			`Post ${updatedPost.isDraft ? 'unpublished' : 'published'} successfully`
+		);
+		return updatedPost;
+	} catch (error) {
+		console.error('Error toggling publish state:', error);
+		throw error;
+	}
+}
+
+module.exports = {
+	createPost,
+	fetchPosts,
+	deletePost,
+	updatePost,
+	togglePublish,
+};
