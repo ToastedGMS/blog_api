@@ -8,6 +8,7 @@ export default function ReadPost() {
 	const [showComments, setShowComments] = useState(false);
 	const [likeBtnMethod, setLikeBtnMethod] = useState('POST');
 	const [dislikeBtnMethod, setDislikeBtnMethod] = useState('POST');
+	const [publishStatus, setPublishStatus] = useState(null);
 	const navigate = useNavigate();
 
 	const readPost = async () => {
@@ -122,9 +123,34 @@ export default function ReadPost() {
 		}
 	};
 
+	const handlePublish = async (isDraft, id) => {
+		try {
+			const publishResponse = await fetch(
+				`http://localhost:3000/posts/${id}/publish`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-type': 'application/json',
+						authorization: `Bearer ${localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+						)}`,
+					},
+				}
+			);
+
+			if (publishResponse.ok) {
+				setPublishStatus(!isDraft);
+			} else {
+				console.error(publishResponse.status, publishResponse.statusText);
+			}
+		} catch (error) {
+			console.error('Error toggling publish status:', error);
+		}
+	};
+
 	useEffect(() => {
 		readPost();
-	}, [id, likeBtnMethod, dislikeBtnMethod]);
+	}, [id, likeBtnMethod, dislikeBtnMethod, publishStatus]);
 
 	if (loading) return <div>Loading post...</div>;
 	if (!post) return <div>Post not found</div>;
@@ -147,6 +173,11 @@ export default function ReadPost() {
 			</button>
 			<Outlet context={{ showComments, setShowComments }} />
 			<button onClick={deletePost}>Delete Post</button>
+			<button
+				onClick={() => handlePublish(post.isDraft ? true : false, post.id)}
+			>
+				{post.isDraft ? 'Publish' : 'Unpublish'}
+			</button>
 			<Link to={'/dev/home'}>Return</Link> <br />
 			<Link to={'/dev/logout'}>Logout</Link>
 		</>
