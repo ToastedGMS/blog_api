@@ -6,6 +6,9 @@ export default function CommentSection() {
 	const [comments, setComments] = useState(null);
 	const [loadComments, setLoadComments] = useState(true);
 	const [reactions, setReactions] = useState({});
+	const [editingCommentId, setEditingCommentId] = useState(null);
+	const [editingContent, setEditingContent] = useState('');
+
 	const readComments = async () => {
 		try {
 			const readCommentsResponse = await fetch(
@@ -108,9 +111,56 @@ export default function CommentSection() {
 		}
 	};
 
+	const startEditing = (commentId, content) => {
+		setEditingCommentId(commentId);
+		setEditingContent(content);
+	};
+
+	const saveComment = async (commentId) => {
+		try {
+			const updateResponse = await fetch(
+				`http://localhost:3000/posts/${id}/comments/${commentId}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-type': 'application/json',
+						authorization: `Bearer ${localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+						)}`,
+					},
+					body: JSON.stringify({
+						content: editingContent,
+					}),
+				}
+			);
+
+			if (updateResponse.ok) {
+				setComments((prevComments) =>
+					prevComments.map((comment) =>
+						comment.id === commentId
+							? { ...comment, content: editingContent }
+							: comment
+					)
+				);
+				setEditingCommentId(null);
+				setEditingContent('');
+				console.log('Comment updated successfully');
+			} else {
+				console.error('Error updating comment');
+			}
+		} catch (error) {
+			console.error('Error updating comment:', error);
+		}
+	};
+
+	const cancelEditing = () => {
+		setEditingCommentId(null);
+		setEditingContent('');
+	};
+
 	useEffect(() => {
 		readComments();
-	}, [id, reactions]);
+	}, [id, reactions, editingContent]);
 
 	return (
 		<>
@@ -123,40 +173,61 @@ export default function CommentSection() {
 				) : comments && comments.length > 0 ? (
 					comments.map((comment) => (
 						<div key={comment.id}>
-							<p>
-								<strong>Author ID:</strong> {comment.authorId}
-							</p>
-							<p>
-								<strong>Content:</strong> {comment.content}
-							</p>
-							<p>
-								<strong>Date:</strong>{' '}
-								{new Date(comment.date).toLocaleDateString()}
-							</p>
-							<p>
-								<strong>Likes:</strong> {comment.likes}
-							</p>
-							<button
-								onClick={() => handleReactionClick(true, comment.id)}
-								disabled={reactions[comment.id]?.like === 'DELETE'}
-							>
-								Like
-							</button>
-							<p>
-								<strong>Dislikes:</strong> {comment.dislikes}
-							</p>
-							<button
-								onClick={() => handleReactionClick(false, comment.id)}
-								disabled={reactions[comment.id]?.dislike === 'DELETE'}
-							>
-								Dislike
-							</button>
-							<p>
-								<strong>Edited:</strong> {comment.edited ? 'Yes' : 'No'}
-							</p>
-							<button onClick={() => deleteComment(comment.id)}>
-								Delete Comment
-							</button>
+							{editingCommentId === comment.id ? (
+								<div>
+									<h4>Edit Comment</h4>
+									<textarea
+										value={editingContent}
+										onChange={(e) => setEditingContent(e.target.value)}
+									/>
+									<button onClick={() => saveComment(comment.id)}>Save</button>
+									<button onClick={cancelEditing}>Cancel</button>
+								</div>
+							) : (
+								<>
+									<p>
+										<strong>Author ID:</strong> {comment.authorId}
+									</p>
+									<p>
+										<strong>Content:</strong> {comment.content}
+									</p>
+									<p>
+										<strong>Date:</strong>{' '}
+										{new Date(comment.date).toLocaleDateString()}
+									</p>
+									<p>
+										<strong>Likes:</strong> {comment.likes}
+									</p>
+									<button
+										onClick={() => handleReactionClick(true, comment.id)}
+										disabled={reactions[comment.id]?.like === 'DELETE'}
+									>
+										Like
+									</button>
+									<p>
+										<strong>Dislikes:</strong> {comment.dislikes}
+									</p>
+									<button
+										onClick={() => handleReactionClick(false, comment.id)}
+										disabled={reactions[comment.id]?.dislike === 'DELETE'}
+									>
+										Dislike
+									</button>
+									<p>
+										<strong>Edited:</strong> {comment.edited ? 'Yes' : 'No'}
+									</p>
+									<button onClick={() => deleteComment(comment.id)}>
+										Delete Comment
+									</button>
+									<button
+										onClick={() => startEditing(comment.id, comment.content)}
+									>
+										Edit Comment
+									</button>
+								</>
+							)}
+							<br />
+							<br />
 						</div>
 					))
 				) : (
