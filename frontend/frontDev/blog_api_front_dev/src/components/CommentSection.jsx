@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Outlet, useParams, Link } from 'react-router-dom';
+import { Outlet, useParams, Link, useNavigate } from 'react-router-dom';
+import RenderComment from './RenderComment';
 
 export default function CommentSection() {
 	const { id } = useParams();
 	const [comments, setComments] = useState(null);
 	const [loadComments, setLoadComments] = useState(true);
-	const [reactions, setReactions] = useState({});
-	const [editingCommentId, setEditingCommentId] = useState(null);
-	const [editingContent, setEditingContent] = useState('');
+	const navigate = useNavigate();
 
 	const readComments = async () => {
 		try {
@@ -38,129 +37,9 @@ export default function CommentSection() {
 		}
 	};
 
-	const deleteComment = async (commentId) => {
-		const confirmDelete = window.confirm(
-			'Are you sure you want to delete this comment?'
-		);
-		if (!confirmDelete) return;
-
-		try {
-			const deleteCommentResponse = await fetch(
-				`http://localhost:3000/posts/${id}/comments/${commentId}`,
-				{
-					method: 'DELETE',
-					headers: {
-						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
-					},
-				}
-			);
-
-			if (deleteCommentResponse.ok) {
-				setComments(comments.filter((comment) => comment.id !== commentId));
-				console.log('Comment deleted successfully');
-			} else {
-				console.error('Error deleting comment');
-			}
-		} catch (error) {
-			console.error('Error deleting comment:', error);
-		}
-	};
-
-	const handleReactionClick = async (isLike, commentId) => {
-		try {
-			const reactionType = isLike ? 'like' : 'dislike';
-			const currentMethod = reactions[commentId]?.[reactionType] || 'POST';
-			const oppositeReactionMethod = isLike
-				? reactions[commentId]?.['dislike']
-				: reactions[commentId]?.['like'];
-
-			if (oppositeReactionMethod === 'DELETE') {
-				await handleReactionClick(!isLike, commentId);
-			}
-
-			const reactionResponse = await fetch(
-				`http://localhost:3000/posts/${id}/comments/${commentId}/${reactionType}?postId=${id}`,
-				{
-					method: currentMethod,
-					headers: {
-						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
-					},
-				}
-			);
-
-			if (reactionResponse.ok) {
-				setReactions((prevReactions) => ({
-					...prevReactions,
-					[commentId]: {
-						...prevReactions[commentId],
-						[reactionType]: currentMethod === 'POST' ? 'DELETE' : 'POST',
-					},
-				}));
-				console.log(`Comment ${commentId} ${reactionType}d`);
-			} else {
-				console.error(reactionResponse.status, reactionResponse.statusText);
-			}
-		} catch (error) {
-			console.error(`Error with ${reactionType} button click:`, error);
-		}
-	};
-
-	const startEditing = (commentId, content) => {
-		setEditingCommentId(commentId);
-		setEditingContent(content);
-	};
-
-	const saveComment = async (commentId) => {
-		try {
-			const updateResponse = await fetch(
-				`http://localhost:3000/posts/${id}/comments/${commentId}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
-					},
-					body: JSON.stringify({
-						content: editingContent,
-					}),
-				}
-			);
-
-			if (updateResponse.ok) {
-				setComments((prevComments) =>
-					prevComments.map((comment) =>
-						comment.id === commentId
-							? { ...comment, content: editingContent }
-							: comment
-					)
-				);
-				setEditingCommentId(null);
-				setEditingContent('');
-				console.log('Comment updated successfully');
-			} else {
-				console.error('Error updating comment');
-			}
-		} catch (error) {
-			console.error('Error updating comment:', error);
-		}
-	};
-
-	const cancelEditing = () => {
-		setEditingCommentId(null);
-		setEditingContent('');
-	};
-
 	useEffect(() => {
 		readComments();
-	}, [id, reactions, editingContent]);
+	}, [id]);
 
 	return (
 		<>
@@ -171,65 +50,13 @@ export default function CommentSection() {
 				{loadComments ? (
 					<div>Loading comments...</div>
 				) : comments && comments.length > 0 ? (
-					comments.map((comment) => (
-						<div key={comment.id}>
-							{editingCommentId === comment.id ? (
-								<div>
-									<h4>Edit Comment</h4>
-									<textarea
-										value={editingContent}
-										onChange={(e) => setEditingContent(e.target.value)}
-									/>
-									<button onClick={() => saveComment(comment.id)}>Save</button>
-									<button onClick={cancelEditing}>Cancel</button>
-								</div>
-							) : (
-								<>
-									<p>
-										<strong>Author ID:</strong> {comment.authorId}
-									</p>
-									<p>
-										<strong>Content:</strong> {comment.content}
-									</p>
-									<p>
-										<strong>Date:</strong>{' '}
-										{new Date(comment.date).toLocaleDateString()}
-									</p>
-									<p>
-										<strong>Likes:</strong> {comment.likes}
-									</p>
-									<button
-										onClick={() => handleReactionClick(true, comment.id)}
-										disabled={reactions[comment.id]?.like === 'DELETE'}
-									>
-										Like
-									</button>
-									<p>
-										<strong>Dislikes:</strong> {comment.dislikes}
-									</p>
-									<button
-										onClick={() => handleReactionClick(false, comment.id)}
-										disabled={reactions[comment.id]?.dislike === 'DELETE'}
-									>
-										Dislike
-									</button>
-									<p>
-										<strong>Edited:</strong> {comment.edited ? 'Yes' : 'No'}
-									</p>
-									<button onClick={() => deleteComment(comment.id)}>
-										Delete Comment
-									</button>
-									<button
-										onClick={() => startEditing(comment.id, comment.content)}
-									>
-										Edit Comment
-									</button>
-								</>
-							)}
-							<br />
-							<br />
-						</div>
-					))
+					comments.map((comment) => {
+						return (
+							<div key={comment.id}>
+								<RenderComment comment={comment} />{' '}
+							</div>
+						);
+					})
 				) : (
 					<div>No comments found</div>
 				)}
