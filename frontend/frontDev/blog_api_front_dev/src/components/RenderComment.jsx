@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-export default function RenderComment({ comment }) {
+export default function RenderComment({ comment, isReply = false }) {
 	const { id } = useParams();
 	const [editingCommentId, setEditingCommentId] = useState(null);
 	const [editingContent, setEditingContent] = useState('');
 	const [commentToRender, setCommentToRender] = useState(comment);
+	const navigate = useNavigate();
 
 	const updateComment = async (commentId) => {
 		try {
@@ -241,10 +242,13 @@ export default function RenderComment({ comment }) {
 							onClick={() =>
 								startEditing(commentToRender.id, commentToRender.content)
 							}
-							disabled={
-								commentToRender.authorId.toString() !==
-								sessionStorage.getItem('currentUser')
-							}
+							style={{
+								display:
+									commentToRender.authorId.toString() !==
+									sessionStorage.getItem('currentUser')
+										? 'none'
+										: 'inline-block',
+							}}
 						>
 							Edit Comment
 						</button>
@@ -254,6 +258,7 @@ export default function RenderComment({ comment }) {
 									`/dev/post/${id}/comments/${commentToRender.id}/thread/new`
 								);
 							}}
+							style={{ display: isReply ? 'none' : 'inline-block' }}
 						>
 							Add Reply
 						</button>
@@ -263,6 +268,7 @@ export default function RenderComment({ comment }) {
 									`/dev/post/${id}/comments/${commentToRender.id}/thread`
 								);
 							}}
+							style={{ display: isReply ? 'none' : 'inline-block' }}
 						>
 							See Full Thread
 						</button>
