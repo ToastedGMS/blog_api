@@ -6,9 +6,8 @@ export default function ReadPost() {
 	const [post, setPost] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [showComments, setShowComments] = useState(false);
-	const [likeBtnMethod, setLikeBtnMethod] = useState('POST');
-	const [dislikeBtnMethod, setDislikeBtnMethod] = useState('POST');
 	const [publishStatus, setPublishStatus] = useState(null);
+	const [update, setUpdate] = useState(0);
 	const navigate = useNavigate();
 
 	const readPost = async () => {
@@ -81,22 +80,42 @@ export default function ReadPost() {
 		}
 	};
 
-	const handleReactionClick = async (isLike) => {
+	const handleReactionClick = async (isLike, id) => {
 		try {
-			const reactionType = isLike ? 'like' : 'dislike';
-			const oppositeReactionMethod = isLike ? dislikeBtnMethod : likeBtnMethod;
-			const currentMethod = isLike ? likeBtnMethod : dislikeBtnMethod;
-			const setCurrentMethod = isLike ? setLikeBtnMethod : setDislikeBtnMethod;
-			const setOppositeMethod = isLike ? setDislikeBtnMethod : setLikeBtnMethod;
+			const reactionType = isLike ? 'like' : 'dislike'; //if isLike === true reactionType = like, if false, dislike
+			const oppositeReactionType = isLike ? 'dislike' : 'like';
 
-			if (oppositeReactionMethod === 'DELETE') {
-				await handleReactionClick(!isLike);
+			if (
+				localStorage.getItem(
+					`user_${sessionStorage.getItem(
+						'currentUser'
+					)}_${oppositeReactionType}`
+				) === `post_${id}`
+			) {
+				const removeOppositeReaction = await fetch(
+					`http://localhost:3000/posts/${id}/${oppositeReactionType}?postId=${id}`,
+					{
+						method: 'DELETE',
+						headers: {
+							'Content-type': 'application/json',
+							authorization: `Bearer ${localStorage.getItem(
+								`user_${sessionStorage.getItem('currentUser')}.AccessToken`
+							)}`,
+						},
+					}
+				);
+
+				localStorage.removeItem(
+					`user_${sessionStorage.getItem(
+						'currentUser'
+					)}_${oppositeReactionType}`
+				);
 			}
 
 			const reactionResponse = await fetch(
 				`http://localhost:3000/posts/${id}/${reactionType}?postId=${id}`,
 				{
-					method: currentMethod,
+					method: 'POST',
 					headers: {
 						'Content-type': 'application/json',
 						authorization: `Bearer ${localStorage.getItem(
@@ -107,19 +126,16 @@ export default function ReadPost() {
 			);
 
 			if (reactionResponse.ok) {
-				if (currentMethod === 'POST') {
-					setCurrentMethod('DELETE');
-					setOppositeMethod('POST');
-					console.log(`Post ${id} ${reactionType}d`);
-				} else {
-					setCurrentMethod('POST');
-					console.log(`Post ${id} un${reactionType}d`);
-				}
+				localStorage.setItem(
+					`user_${sessionStorage.getItem('currentUser')}_${reactionType}`,
+					`post_${id}`
+				);
+				setUpdate(update + 1);
 			} else {
 				console.error(reactionResponse.status, reactionResponse.statusText);
 			}
 		} catch (error) {
-			console.error(`Error with ${reactionType} button click:`, error);
+			console.error(`Error with button click:`, error);
 		}
 	};
 
@@ -150,7 +166,7 @@ export default function ReadPost() {
 
 	useEffect(() => {
 		readPost();
-	}, [id, likeBtnMethod, dislikeBtnMethod, publishStatus]);
+	}, [id, publishStatus, update]);
 
 	if (loading) return <div>Loading post...</div>;
 	if (!post) return <div>Post not found</div>;
@@ -162,9 +178,27 @@ export default function ReadPost() {
 				<div dangerouslySetInnerHTML={{ __html: post.content }} />
 				<p>Posted on: {new Date(post.date).toLocaleDateString()}</p>
 				<p>Likes: {post.likes}</p>{' '}
-				<button onClick={() => handleReactionClick(true)}>Like</button>
+				<button
+					onClick={() => handleReactionClick(true, id)}
+					disabled={
+						localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}_like`
+						) === `post_${id}`
+					}
+				>
+					Like
+				</button>{' '}
 				<p>Dislikes: {post.dislikes}</p>{' '}
-				<button onClick={() => handleReactionClick(false)}>Dislike</button>
+				<button
+					onClick={() => handleReactionClick(false, id)}
+					disabled={
+						localStorage.getItem(
+							`user_${sessionStorage.getItem('currentUser')}_dislike`
+						) === `post_${id}`
+					}
+				>
+					Dislike
+				</button>{' '}
 			</div>{' '}
 			<br />
 			<br />
