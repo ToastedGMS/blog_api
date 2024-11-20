@@ -10,6 +10,8 @@ import ReadPost from './components/ReadPost.jsx';
 import CommentSection from './components/CommentSection.jsx';
 import NewComment from './components/NewComment.jsx';
 import PostUpdate from './components/PostUpdate.jsx';
+import ThreadComponent from './components/ThreadComponent.jsx';
+import NewReply from './components/NewReply.jsx';
 
 const router = createBrowserRouter([
 	{ path: '/dev', element: <App /> },
@@ -37,6 +39,11 @@ const router = createBrowserRouter([
 				path: 'comments',
 				element: <CommentSection />,
 				children: [{ path: 'new', element: <NewComment /> }],
+			},
+			{
+				path: 'comments/:commentId/thread',
+				element: <ThreadComponent />,
+				children: [{ path: 'new', element: <NewReply /> }],
 			},
 		],
 	},
