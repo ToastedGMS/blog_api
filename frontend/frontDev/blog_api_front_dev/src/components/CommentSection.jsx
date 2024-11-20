@@ -6,7 +6,6 @@ export default function CommentSection() {
 	const { id } = useParams();
 	const [comments, setComments] = useState(null);
 	const [loadComments, setLoadComments] = useState(true);
-	const navigate = useNavigate();
 
 	const readComments = async () => {
 		try {
