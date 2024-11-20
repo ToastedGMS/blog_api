@@ -7,6 +7,10 @@ export default function NewComment() {
 	const navigate = useNavigate();
 
 	const postComment = async () => {
+		if (!comment.trim()) {
+			alert('Comment cannot be empty!');
+			return;
+		}
 		try {
 			const response = await fetch(
 				`http://localhost:3000/posts/${id}/comments`,
