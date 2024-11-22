@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TokenContext } from './TokenProvider'; // Import TokenContext
 
 export default function Logout() {
 	const [logoutMessage, setLogoutMessage] = useState('Logging user out...');
 	const navigate = useNavigate();
+	const { setAccessToken } = useContext(TokenContext); // Access the context
 
 	const handleLogout = async () => {
 		try {
@@ -22,10 +24,17 @@ export default function Logout() {
 			if (logoutResponse.ok) {
 				const data = await logoutResponse.json();
 				setLogoutMessage(data.message);
+
+				// Clear context token
+				setAccessToken(null); // Clears token from TokenProvider
+
+				// Clear localStorage and sessionStorage
 				sessionStorage.removeItem('currentUser');
 				localStorage.removeItem(`user_${currentUserId}.AccessToken`);
 				localStorage.removeItem(`user_${currentUserId}.RefreshToken`);
 				localStorage.removeItem(`user_${currentUserId}.Email`);
+
+				// Redirect to login
 				navigate('/dev/login');
 			} else {
 				const data = await logoutResponse.json();
@@ -41,6 +50,7 @@ export default function Logout() {
 	useEffect(() => {
 		handleLogout();
 	}, []);
+
 	return (
 		<>
 			<h1>{logoutMessage}</h1>

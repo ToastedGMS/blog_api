@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function NewReply() {
 	const { id, commentId } = useParams();
 	const [comment, setComment] = useState('');
-	const navigate = useNavigate();
+	const { accessToken } = useContext(TokenContext);
 
 	const postReply = async () => {
 		if (!comment.trim()) {
@@ -18,9 +19,7 @@ export default function NewReply() {
 					method: 'POST',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify({
 						authorId: parseInt(sessionStorage.getItem('currentUser'), 10),

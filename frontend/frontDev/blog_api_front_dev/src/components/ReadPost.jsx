@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, Outlet } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function ReadPost() {
 	const { id } = useParams();
@@ -9,6 +10,7 @@ export default function ReadPost() {
 	const [publishStatus, setPublishStatus] = useState(null);
 	const [update, setUpdate] = useState(0);
 	const navigate = useNavigate();
+	const { accessToken } = useContext(TokenContext);
 
 	const readPost = async () => {
 		try {
@@ -52,9 +54,7 @@ export default function ReadPost() {
 					method: 'DELETE',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 				}
 			);
@@ -98,9 +98,7 @@ export default function ReadPost() {
 						method: 'DELETE',
 						headers: {
 							'Content-type': 'application/json',
-							authorization: `Bearer ${localStorage.getItem(
-								`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-							)}`,
+							authorization: `Bearer ${accessToken}`,
 						},
 					}
 				);
@@ -118,9 +116,7 @@ export default function ReadPost() {
 					method: 'POST',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 				}
 			);
@@ -147,9 +143,7 @@ export default function ReadPost() {
 					method: 'PUT',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 				}
 			);

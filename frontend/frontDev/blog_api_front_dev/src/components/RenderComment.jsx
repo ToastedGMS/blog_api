@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function RenderComment({ comment, isReply = false }) {
 	const { id } = useParams();
@@ -7,6 +8,7 @@ export default function RenderComment({ comment, isReply = false }) {
 	const [editingContent, setEditingContent] = useState('');
 	const [commentToRender, setCommentToRender] = useState(comment);
 	const navigate = useNavigate();
+	const { accessToken } = useContext(TokenContext);
 
 	const updateComment = async (commentId) => {
 		try {
@@ -60,9 +62,7 @@ export default function RenderComment({ comment, isReply = false }) {
 						method: 'DELETE',
 						headers: {
 							'Content-type': 'application/json',
-							authorization: `Bearer ${localStorage.getItem(
-								`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-							)}`,
+							authorization: `Bearer ${accessToken}`,
 						},
 					}
 				);
@@ -80,9 +80,7 @@ export default function RenderComment({ comment, isReply = false }) {
 					method: 'POST',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 				}
 			);
@@ -114,9 +112,7 @@ export default function RenderComment({ comment, isReply = false }) {
 					method: 'DELETE',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 				}
 			);
@@ -149,9 +145,7 @@ export default function RenderComment({ comment, isReply = false }) {
 					method: 'PUT',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify({
 						content: editingContent,

@@ -1,12 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { useNavigate } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function NewPost() {
 	const editorRef = useRef(null);
 	const [title, setTitle] = useState('');
 	const [content, setContent] = useState('');
 	const navigate = useNavigate();
+	const { accessToken } = useContext(TokenContext);
 
 	const handleSavePost = async () => {
 		const editorContent = editorRef.current.getContent();
@@ -17,9 +19,7 @@ export default function NewPost() {
 				method: 'POST',
 				headers: {
 					'Content-type': 'application/json',
-					authorization: `Bearer ${localStorage.getItem(
-						`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-					)}`,
+					authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify({
 					email: localStorage.getItem(

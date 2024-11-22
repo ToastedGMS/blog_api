@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 function LoginForm() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const navigate = useNavigate();
+	const { initializeToken } = useContext(TokenContext);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -22,6 +24,7 @@ function LoginForm() {
 
 			if (response.ok) {
 				console.log('Login successful');
+
 				localStorage.setItem(
 					`user_${data.user.id}.AccessToken`,
 					data.accessToken
@@ -32,6 +35,10 @@ function LoginForm() {
 				);
 				localStorage.setItem(`user_${data.user.id}.Email`, data.user.email);
 				sessionStorage.setItem('currentUser', data.user.id);
+
+				// Initialize token in the context
+				initializeToken(data.accessToken, 600); // Pass token and expiry time (600 seconds)
+
 				navigate('/dev/home');
 			} else {
 				console.error('Login failed:', data);

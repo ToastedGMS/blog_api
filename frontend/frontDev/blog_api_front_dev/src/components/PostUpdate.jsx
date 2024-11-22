@@ -1,6 +1,7 @@
 import { Editor } from '@tinymce/tinymce-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function PostUpdate() {
 	const { id } = useParams();
@@ -9,6 +10,7 @@ export default function PostUpdate() {
 	const [content, setContent] = useState('');
 	const [post, setPost] = useState(null);
 	const navigate = useNavigate();
+	const { accessToken } = useContexty(TokenContext);
 
 	const getPost = async () => {
 		try {
@@ -45,9 +47,7 @@ export default function PostUpdate() {
 				method: 'PUT',
 				headers: {
 					'Content-type': 'application/json',
-					authorization: `Bearer ${localStorage.getItem(
-						`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-					)}`,
+					authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify({
 					title: title,

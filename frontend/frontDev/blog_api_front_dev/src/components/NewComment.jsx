@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { TokenContext } from './TokenProvider';
 
 export default function NewComment() {
 	const { id } = useParams();
 	const [comment, setComment] = useState('');
+	const { accessToken } = useContext(TokenContext);
 	const navigate = useNavigate();
 
 	const postComment = async () => {
@@ -18,9 +20,7 @@ export default function NewComment() {
 					method: 'POST',
 					headers: {
 						'Content-type': 'application/json',
-						authorization: `Bearer ${localStorage.getItem(
-							`user_${sessionStorage.getItem('currentUser')}.AccessToken`
-						)}`,
+						authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify({
 						authorId: parseInt(sessionStorage.getItem('currentUser'), 10),
