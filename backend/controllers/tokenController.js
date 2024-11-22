@@ -61,7 +61,11 @@ async function postToken(req, res) {
 			await removeToken(email, prisma);
 			const token = generateToken(email);
 
-			res.json({ accessToken: token.accessToken, email: email });
+			res.json({
+				accessToken: token.accessToken,
+				email: email,
+				refreshToken: token.refreshToken,
+			});
 		}
 	);
 }
