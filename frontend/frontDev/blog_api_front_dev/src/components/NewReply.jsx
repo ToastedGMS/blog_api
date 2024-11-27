@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { TokenContext } from './TokenProvider';
 
 export default function NewReply() {
 	const { id, commentId } = useParams();
 	const [comment, setComment] = useState('');
 	const { accessToken } = useContext(TokenContext);
+	const navigate = useNavigate();
 
 	const postReply = async () => {
 		if (!comment.trim()) {
@@ -32,7 +33,7 @@ export default function NewReply() {
 			);
 
 			if (response.ok) {
-				location.reload();
+				navigate(`/dev/post/${id}`);
 			} else {
 				console.error(response.status);
 				console.error('Error posting comment');

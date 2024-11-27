@@ -118,7 +118,7 @@ export default function RenderComment({ comment, isReply = false }) {
 			);
 
 			if (deleteCommentResponse.ok) {
-				location.reload();
+				navigate(`/dev/post/${id}`);
 				console.log('Comment deleted successfully');
 			} else {
 				console.error('Error deleting comment');
